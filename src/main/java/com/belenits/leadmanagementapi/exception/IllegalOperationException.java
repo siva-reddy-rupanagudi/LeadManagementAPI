@@ -1,4 +1,7 @@
 package com.belenits.leadmanagementapi.exception;
 
-public class IllegalOperationException {
+public class IllegalOperationException extends RuntimeException {
+    public IllegalOperationException(String message) {
+        super(message);
+    }
 }

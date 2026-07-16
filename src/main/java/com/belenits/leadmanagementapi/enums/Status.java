@@ -1,4 +1,4 @@
-package com.belenits.leadmanagementapi.customIdGenerators;
+package com.belenits.leadmanagementapi.enums;
 
 public enum Status {
     ACTIVE, INACTIVE

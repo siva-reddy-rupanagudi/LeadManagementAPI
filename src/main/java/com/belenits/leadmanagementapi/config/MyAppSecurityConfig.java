@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -20,7 +21,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @RequiredArgsConstructor
 public class MyAppSecurityConfig {
-    private final CounsellorsDetaileService  counsellorsDetaileService;
+    private final CounsellorsDetaileService counsellorsDetaileService;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -28,20 +29,22 @@ public class MyAppSecurityConfig {
     }
 
     @Bean
-    public AuthenticationProvider  authenticationProvider() {
-        DaoAuthenticationProvider provider=new DaoAuthenticationProvider(counsellorsDetaileService);
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(counsellorsDetaileService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
+
     @Bean
-    public AuthenticationManager  authenticationManager(AuthenticationConfiguration configuration) {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) {
         return configuration.getAuthenticationManager();
     }
+
     @Bean
-    public SecurityFilterChain  securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(auth->auth.requestMatchers("/counsellors/login","/courses","/courses/**","/csrf-token").permitAll()
-                .requestMatchers(HttpMethod.POST, "/counsellors").permitAll()
-                .anyRequest().authenticated())
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(auth -> auth.requestMatchers("/counsellors/login", "/courses", "/courses/**", "/csrf-token").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/counsellors").permitAll()
+                        .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .authenticationProvider(authenticationProvider());
         return http.build();

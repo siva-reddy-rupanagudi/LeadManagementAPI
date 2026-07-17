@@ -8,13 +8,12 @@ import com.belenits.leadmanagementapi.response.ApiResponse;
 import com.belenits.leadmanagementapi.response.CounsellorResponse;
 import com.belenits.leadmanagementapi.response.CourseResponse;
 import com.belenits.leadmanagementapi.response.EnquiryResponse;
+import com.belenits.leadmanagementapi.service.JwtService;
 import com.belenits.leadmanagementapi.service.LeadmanagmentService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +23,7 @@ import java.util.Map;
 @RestController
 public class LeadmanagmentController {
     private final LeadmanagmentService leadmanagmentService;
+    private final JwtService jwtService;
     public static String counId = null;
 
 
@@ -73,7 +73,7 @@ public class LeadmanagmentController {
     @PostMapping("/counsellors/login")
     public ResponseEntity<ApiResponse<String>> counsellorlogin(@Valid @RequestBody LoginDTO loginDTO) {
         String counsellorId = leadmanagmentService.counsellorlogin(loginDTO);
-        ApiResponse<String> response = new ApiResponse<>(counsellorId, "Counsellor login successful", 200);
+        ApiResponse<String> response = new ApiResponse<>(counsellorId,jwtService.generateKey(counsellorId) , 200);
         counId = counsellorId;
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

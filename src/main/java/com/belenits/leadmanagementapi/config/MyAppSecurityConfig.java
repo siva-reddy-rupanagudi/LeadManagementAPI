@@ -39,7 +39,7 @@ public class MyAppSecurityConfig {
     }
     @Bean
     public SecurityFilterChain  securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(auth->auth.requestMatchers("/counsellors/login","/courses","/courses/**").permitAll()
+        http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(auth->auth.requestMatchers("/counsellors/login","/courses","/courses/**","/csrf-token").permitAll()
                 .requestMatchers(HttpMethod.POST, "/counsellors").permitAll()
                 .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())

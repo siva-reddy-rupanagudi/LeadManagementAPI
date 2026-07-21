@@ -20,6 +20,10 @@ public class CounsellorsDetaileService implements UserDetailsService {
         if (counsellors == null) {
             throw new UsernameNotFoundException(email);
         }
-        return User.builder().username(counsellors.getEmail()).password(counsellors.getPassword()).build();
+        return User.builder()
+                .username(counsellors.getEmail())
+                .password(counsellors.getPassword())
+                .authorities("COUNSELLOR")
+                .build();
     }
 }

@@ -6,13 +6,12 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
+import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,18 +20,13 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
+    private static final Duration TOKEN_VALIDITY = Duration.ofHours(30);
+
     @Autowired
     private CounsellorRepo counsellorRepo;
-    private String secretKey="";
-    public JwtService(){
-        try {
-            KeyGenerator keyGen=KeyGenerator.getInstance("HmacSHA256");
-            SecretKey sk=keyGen.generateKey();
-            secretKey= Base64.getEncoder().encodeToString(sk.getEncoded());
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
+
+    @Value("${jwt.secret}")
+    private String secretKey;
 
     public String generateKey(String counsellorId) {
         Map<String,Object> claims = new HashMap<>();
@@ -43,7 +37,7 @@ public class JwtService {
                 .add(claims)
                 .subject(counsellorRepo.findById(counsellorId).get().getEmail())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 30))
+                .expiration(new Date(System.currentTimeMillis() + TOKEN_VALIDITY.toMillis()))
                 .and()
                 .signWith(getKey())
                 .compact();
@@ -59,7 +53,15 @@ public class JwtService {
 
     public boolean validateToken(String token, UserDetails userDetails) {
         String username = extractUserName(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        System.out.println("JWT Username : " + username);
+        System.out.println("DB Username  : " + userDetails.getUsername());
+        System.out.println("Expired      : " + isTokenExpired(token));
+
+        boolean valid = username.equals(userDetails.getUsername())
+                && !isTokenExpired(token);
+
+        System.out.println("Token Valid = " + valid);
+        return valid;
     }
 
     private boolean isTokenExpired(String token) {
